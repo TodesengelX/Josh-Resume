@@ -1,25 +1,20 @@
 name: Blob storage website CI
 
 on:
-    push:
-        branches: [ main ]
+  push:
+    branches: [ main ]
 
 jobs:
-  build:
+  build-and-upload:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: azure/login@v1
-      with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
     - name: Upload to blob storage
       uses: azure/CLI@v1
       with:
         inlineScript: |
-            az storage blob upload-batch --account-name "joshssa" --auth-mode key -d '$web' -s . --overwrite
-  # Azure logout
-    - name: logout
-      run: |
-            az logout
-      if: always()
+          az storage blob upload-batch --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }} --auth-mode key -d '$web' -s . --overwrite
+      env:
+        AZURE_STORAGE_ACCOUNT_KEY: ${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }}
